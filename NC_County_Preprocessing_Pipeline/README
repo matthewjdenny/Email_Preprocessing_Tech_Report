@@ -1,0 +1,35 @@
+17th November 2014
+
+First started writing the code. Created the repostiory
+
+https://bitbucket.org/neha26shah/email_parser
+
+
+
+18th November
+
+Added the basic stuff of fetching the corresponding elements from the message
+
+(From,To,Subject,CC, Message) .. Very Naive method. Need to improve it.
+
+
+
+
+14th December
+
+Copied the original code from email_parsing.py to this code
+
+Changed the code so as to generate the unique mails faster.
+
+Also changed the code so that stopwords are removed faster.
+
+Need to add the matrix creation to this 
+
+Also need to once modify the text parsing here.. to take into consideration the special symbols and character.
+
+
+21st December
+
+Completed the code to generate the matrices as required.
+Need some polishing on the text and the emailids.
+Need to check the results once.
