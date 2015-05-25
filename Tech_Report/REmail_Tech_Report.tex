@@ -40,10 +40,6 @@
 
 \section{Data Collection}
 
-% \todo[inline]{ \large Describe the data we collected in 2103:\newline
-%  -- What does it in clude, how many emails etc? \newline
-%  -- Where from and why did we collect it?\newline
-%  -- What it might be useful for.}
 
 \noindent The tools described in this report were developed to process approximately 500,000 emails gathered in overlapping three-month periods in 2013 from seventeen North Carolina county governments. Each county provided three months of internal emails sent and received by department managers (Health, Finance, Utilites, etc.) in response to requests under North Carolina's public records disclosure laws. These data were collected as part of a field experiment testing for peer-effects in the compliance with public records requests (CITE Aaron et al.).  The raw volume of emails provided by each county ranged from about 2,000 emails to over 60,000\footnote{accommodations were made to prevent an undue burden being placed on the county governments.}. These counties represent both large and small population counties on both sides of the state with wide variation in median household income and racial composition. A map of county locations is provided in Figure \ref{fig:countyMap}. 
 
@@ -57,11 +53,6 @@
 
 
 \section{Raw Data: Format and Extraction to Plain Text}
-
-\todo[inline]{ \large How to deal with raw email data:\newline
- -- What format did our data come in, what medium?, file sizes? \newline
- -- What tools did we use to extract the different kinds fo file. Provide lots of example code here and links to all of the project webpages. We want to really hold peoples hands here. \newline
- -- Talk about the output from these files and provide example plain text of a short email. Illustrate where the relevant information lies (I will do this with some cool verbatim highlighting).}
  
  Email data may be provided to the researcher in a number of different formats, some easier to deal with than others. When pssible, the researcher should request provision of data electronically in a common archival format such as the .pst or .dbx files that are relatively easily exported by Microsoft Outlook and Outlook Express respectively\footnote{Directions for bulk-exporting emails from Microsoft Outlook can be found at: \href{http://bit.ly/1PmNvIs}{http://bit.ly/1PmNvIs} and directions for exporting from Outlook Express can be found here: \href{http://bit.ly/1EaJaQD}{http://bit.ly/1EaJaQD}}, or in plain text or .eml format (with one file per email). Email data may also be provided in a number of other electronic formats depending on the particular client used but many of these formats are more challenging to convert to plain text (which is necessary for further processing). We discuss plain text extraction from some of these other formats in greater detail below, but applications such as MailStore\footnote{30 day free trial available at \href{http://www.mailstore.com/}{http://www.mailstore.com/}.} can also convert more obscure email data to a more standard format which can aide further processing. In general, the researcher should avoid acquiring email data in PDF\footnote{In certain cases, the \texttt{pdftotext} utility (\href{http://en.wikipedia.org/wiki/Pdftotext}{http://en.wikipedia.org/wiki/Pdftotext}) may provide acceptable character recognition performance, but it is the author's experience that email formatting may not be standardized, leading to additional challenges in automatic processing.} or paper form, as attempting to convert these documents to a useable digital format using optical character recognition is often extremely time intensive and may not provide very accurate results. \par
    County raw mail formats and statistics are presented in Table \ref{tab:county format}. .MAI,.imap,.txt and .eml are all txt formats, easy to parse with a property that there exists a file for each mail sent or received. The other two formats .pst and .mbox need to be converted to txt format. pst file formats are converted to txt files using the readpst utilities\footnote{Readpst utility to convert Outlook .pst files to other formats (\href{https://launchpad.net/ubuntu/precise/+package/readpst}{https://launchpad.net/ubuntu/precise/+package/readpst}) } \footnote{Man Page of readpst: \href{http://manpages.ubuntu.com/manpages/raring/man1/readpst.1.html}{http://manpages.ubuntu.com/manpages/raring/man1/readpst.1.html}}. Demo command line execution to convert a .pst file has been presented below. default.pst is the pst file which needs to be converted to text format. output\_directory is the directory where the extracted text file needs to be loaded.
@@ -163,13 +154,6 @@ Content-Type: text/plain; charset="us-ascii"
 \end{center}  
 
 \section{Spam Email Filtering}
-\todo[inline]{ \large Talk about how we filter spam emails out of our data:\newline
- -- Talk generally about the process at a high level and why it might be tricky. Show some example spam emails. \newline
- -- Talk about the different tools available and how we selected the tools we used. Any performance comparisons could go here -- or just links to thos project webpages.\newline
- -- Go mroe in depth into the tool we use, talk about how to use it and provide detailed example code.\newline
--- Talk about training classifier. \newline
--- Validation experiments -- how did we check to see how well we did, what are the error rates? Link to descriptive stats table in Output Format section where we will include a column on raw number of emails.\newline
- -- Discuss the limitations of spam filtering and what people need to watch out for.}
 
 %now deal with external emails + spam filtering
 While we are able to make use of bureaucratically compiled email addresses directly identify department managers, such metadata does not exist for the rest of the email addresses in our sample. Qualitative examination of the raw email data suggests that a large portion of the rest of emails in county manager inboxes are spam (sent from online marketers, retail chains, etc.). We make use of the Bogofilter\footnote{\href{http://bogofilter.sourceforge.net/}{http://bogofilter.sourceforge.net/}} filtering software to remove spam emails from the non manager-to-manager emails in our data. This filtering tool uses a variation on a naive Bayes classifier and requires that a sample emails be hand-coded as spam or not, in order to classify the rest of the emails in the corpus. We completed hand-training for each corpus using several thousand hand coded emails and post-hoc random checks of XXX classification decisions indicates that Bogofilter filter provides a very low false positive (9.1 percent) and  false negative rate (6.34 percent)\footnote{For a much more detailed explanation of the email filtering process see (CITE TECH REPORT), available (WEB-LINK).}. While the spam email classifier does not provide perfect results, our analyses of these emails only make use of listserv activity, which due to the nature of the filtering algorithm is very unlikely to be confounded by any classification errors. County email and manager statistics are presented in Table \ref{tab:county email summaries} and include the gender of county managers which are incorporated in our analysis of content-conditional assortative mixing between managers in these counties.  
@@ -324,14 +308,40 @@ After running this code, the output\_directory will contains three folders ham,s
 \subsection{Limitations}
 This one classifier trained on Nash County emails is then used to classify emails from all other counties. Even though the nature of emails is same, their contextually they may vary. Hence, training on a different county and classifying on different county may not always be useful. For this reason, 20 random classified emails from each spam and ham are manually checked. If more than one email is found to be misclassified, then the classifier is discarded for that county. A different classifier needs to be trained for such exceptions.  For counties like Caldwell, where the email length is considerably smaller than Nash county, it is found that this classifier doesn't work.
 
-\section{Email Processing}
+\begin{center}
+	\begin{figure}[ht]
+		\centering
+		\caption{\label{fig:spamemail} Example of complete email from Caldwell county which contains less headers as compared to those observed in Nash County. The classifier trained on Nash county data fails to classify this as spam.}
+\cprotect\fbox{ 
+\begin{BVerbatim}[commandchars=\\\{\},frame=single]
+ceived: (qmail 13307 by uid 855);      Wed, 21 Mar 2012 01:08:06 +0700
+Date: Wed, 21 Mar 2012 01:08:06 +0700
+Message-Id: <20120321060806.13309.qmail@213.subnet110-138-184.speedy.telkom.net.id>
+From: "NOW 15% OFF" <bjhw@czhq.net>
+X-Priority: 3
+Reply-To: bjhw@czhq.net
+To: dhill@caldwellcountync.org
+Subject: Luxury Replicas : Perfect Luxury Watches
+Status: RO
+MIME-Version: 1.0
+Content-Type: multipart/mixed;
+        boundary="--boundary-LibPST-iamunique-1404019795_-_-"
 
-\todo[inline]{ \large Walk through processing raw email data into usefable format:\newline
- -- General overview (MATT will do this) \newline
- -- Discuss why we are using python, what packages we are relying on and other alternatives to what we are doing. \newline
- -- Talk about the pipeline: (finding email addresses if we jsut want a subset of senders), extracting addresses, to, from ,cc, subject, body, time, removing quoted text, any challenges with each of these. \newline
- -- Speed, scalability and robsutness.\newline
- -- validation experiments in detail.\newline}
+----boundary-LibPST-iamunique-1404019795_-_-
+Content-Type: text/plain; charset="utf-8"
+
+Luxury Replicas : Perfect Luxury Watches for blowout Sale prices
+
+http://bume.tipspa.ru
+
+----boundary-LibPST-iamunique-1404019795_-_---
+\end{BVerbatim}
+}
+	\end{figure}
+\end{center} 
+
+
+\section{Email Processing}
  
 %discuss stopword removal, document representation, metadata coding (female names) and ethics of releasing data.
 After identifying the subsets of manager-to-manager and non-spam manager-non-manager emails, the data were then fed through a preprocessing pipeline to represent the data in a form more amenable to statistical analysis\footnote{Python and R code to preprocess these emails is available at LINK TO GIT REPO.}. Each email had special characters, numbers and generic stopwords (i.e., function words, such as ``the,'' ``and,'' ``to,'' ``is,'' and ``that''), as well as some domain-specific stopwords removed. This is a common practice in the statistical topic modeling literature \citep{Wallach2009} and tends to increase the interpretability of output from these models as stopwords tend to be very high frequency, and may obscure topical content\footnote{A complete list of all stopwords removed during preprocessing is available LINK.}. Each email was then represented as a document-term vector (with one entry for each unique term in the vocabulary and the count of that term in the document), and a document-edge vector (with one entry for each possible recipient and a 1 in an entry indicating that person was a recipient of the current email). This form of data representation does disregard word ordering, but the ``bag-of-words" representation has been shown to yield high quality analyses and is very common in the statistical text analysis literature \citep{Grimmer2013}. Metadata, including: name, email, department, and gender was then coded for each manager in each county. Where possible, pictures of employees, voter registration records, or highly-gendered first names were used to assign a gender coding to each department manager\footnote{We recognize that gender may not be the most appropriate metric, and that our approach may miss those who self-identify as a different gender than their name may indicated, but we feel this choice of measurement is justified for privacy and practical reasons.}.
@@ -440,10 +450,15 @@ If no email address is obtained in the name and email address pair, then the ema
 % Mention the function which does this. 
 The function parse\_addresses of text\_parsing.py implements this functionality. It takes as input the text extracted from any of the "From", "To" and "Cc" fields. Ultimately this function returns a list of email addresses which is then saved into the dictionary for further processing. The code below shows an example on the usage of parse\_addresses function. 
 \begin{code}
+import text_parsing
+
 # Email "To" field extracted using email package. Output is obtained as a string.
 # This then fed as input to parse_addresses.
+
 email_to_field = "Cronk, Greg"
-list_addresses = parse_addresses(email_to_field)
+list_addresses = text_parsing.parse_addresses(email_to_field)
+print list_addresses
+
 # Output will be ["gcronk@alexandercountync.gov"]
 \end{code}
 \subsection{Email Date Extraction}
@@ -514,9 +529,12 @@ The code below gives an example on the usage of this function.
 import text_parsing
 subject="RE: Please check your Fee and Eligibility Policy"
 print text_parsing.parse_text(subject)
+
 #Output:("check fee eligibility policy","RE: Please check your Fee and Eligibility Policy")
+
 subject="=?UTF-8?Q?[CED_in_NC]_Confronting_the_nation=E2=80=99s_=E2=80=9Cage_bubbl?="
 print text_parsing.parse_text(subject)
+
 #Output:("","")
 \end{code}
 \subsection{Email Body Extraction}
@@ -574,7 +592,6 @@ ediately and delete all records of this e-mail.
 The logic to extract and tokenize the email message has been written in the parse\_message function of text\_parsing module. In this logic, first all the image tags are removed from the body. Then existing hyperlinks or URL's are removed from the body. Then the body is split into lines on the newline character or \^M character. Each line is parsed to check whether it indicates the start of forwaded or replied to message. In Figure \ref{fig:bodyimage1} the delimiter is "-----Original Message-----". Once such a delimiter is encountered the remaining lines of the body are skipped. Thus, the message part of the body is obtained. This is then tokenized using the parse\_text function of the text\_parsing module.
  The code below shows an example on usage of parse\_message function in the text\_parsing module of email body shown in Figure \ref{fig:bodyimage1}. 
 
-
 \begin{code}
 import text_parsing
 
@@ -599,11 +616,25 @@ print raw_text
 \end{code}
 
 \subsection{Code Parameters and Output}
-code output
-\subsection{Scalability and Time taken}
-Scalability and time taken.
+The entire corpus of emails can be parsed to generate the word and edge matrix, using run.py. The run.py takes command line arguments as $\langle corpus\_emails \rangle$ $\langle stopwords-file \rangle$ $\langle output-directory \rangle$. The corpus\_emails represents a directory, where every email in the corpus is represented as a separate file. The directory may also contain attachements, images etc. Hence for each county, the type of file which represents email file has been hard coded. Same with county domain name. The default domain name in the email address of each county has been hardcoded.While constructing email addresses this default domain name is considered.  The name of the output directory follows a particular convention and needs to be constructed before running this code. The name of the output directory should be the same name as that of the county. So that the code can recognize which county is it running for and choose the default domain name accordingly. The output directory name is expected to be in title case. For example, for 'Alexander County' the output directory name is expected to be "Alexander". This output directory is also expected to have an "internal\_emails\_data.csv" file which contains meta data about department managers. 
+The code below shows an example of how to run the parsing scripts on a corpus of emails.
+\begin{code}
+python run.py data_directory stopwords.txt output_directory
+\end{code}
+A logfile is created with a timestamp. It contains detailed description of which emails in the corpus were skipped and for what reason. It also gives some statitics about the number of emails in the corpus etc. Since this logging is timestamp based, everytime the code is run new logfile will be created in the output directory. 
 
-\subsection{Validation Experiments}
+The code can generate two types of output. If the spam\_classified value in email\_scan.py is set to 0, then only the department manager output matrices are generated. If that variable is set to 1, then output matrices for the entire corpus are generated.The name and type of output files generated in both the cases is same. 
+\begin{itemize}
+\item authors.txt:  List of unique email addresses obtained from the email corpus along with the number of emails sent by that email address and received. (Order of file email address, \#Sent, \#Received.)
+\item vocab.txt: List of unique tokens obtained from the email corpus.
+\item pickle\_data\_dump.pkl: Pickle data dump of parsed list of dictionaries of email meta data.
+\item summary.csv: The summary file provides the metadata about each email in a csv format. The raw text of body extracted is also included here. 
+\item word\_matrix.csv: A matrix where each row represents an email. And the columns represent the words/tokens in the same order as in vocab.txt. And the matrix elements represent the count of number of times that word appears in that email.
+\item edge\_matrix.csv: A matrix where each row represents an email. There is a column for sender beyond which all the columns represent the email addresses in the same order as in authors.txt. The elements in column sender are indices for the email address of the sender for that particular email from authors.txt. The others are marked as 1 if they are recipients in the email.
+\end{itemize}
+\subsection{Scalability and Time taken}
+
+\subsection{Validation Experiments} 
 
 % Describe what gets missed in the validation experiments.
 To ensure the accuracy of our automatic email processing techniques, a random sample of 20 emails included in the reduced data set was selected at random and audited manually to ensure that all authors, recipients and the content of the messages were recovered exactly. Results of these random manual audits indicate a 100\% accuracy rate across all counties, meaning that while we cannot rule out the possibility that emails were excluded from our data set due to the use of alternate (personal) email addresses, we are confident that we do not include emails that should not be in our manager-to-manager data set.
@@ -615,10 +646,6 @@ Email address construction from names has been hardcoded according to counties. 
 
 
 \section{Output Format}
-
-\todo[inline]{ \large Describe how the output is formatted:\newline
- -- General overview (MATT will do this) \newline
- -- show lots of descriptive stats and talk abotu saving as Rdata files.}
 
 Our email preprocessing tools generate intermediate output in \texttt{.csv} format, which is then packaged into a memory efficient and portable format and saved as an \texttt{.Rdata} file for further analysis or easy exporting to other formats through R. 
 
@@ -666,10 +693,6 @@ Wilkes & 17 & 2 & 303 & 8443 & 9693 \\
 
 
 \section{R Package Example}
-
-\todo[inline]{ \large Talk about our plans for an R package, discuss the flow of reading in data and cleaning it.:\newline
- -- provide a worked example on a toy dataset}
- 
  %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \hypersetup{linkcolor=black}
 \bibliographystyle{MJD_plainnat}
