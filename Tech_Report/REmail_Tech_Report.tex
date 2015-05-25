@@ -520,7 +520,84 @@ print text_parsing.parse_text(subject)
 #Output:("","")
 \end{code}
 \subsection{Email Body Extraction}
-Body extraction
+Figure \ref{fig:bodyimage1} shows an  example of the body parsed by the email python package. This body may also include the forwarded and replied to text. We intend to extract only that part of body (for convenience, we call the entire raw text of the email body as body) which was sent as a part of this email (for convenience, we call this the message.). We do not wish to extract text from previous messages or forwarded messages.  Secondly, the message text may contain images, hyperlinks and various html tags which also need to be filtered out while generating tokens. 
+
+\begin{center}
+	\begin{figure}[ht]
+		\centering
+		\caption{\label{fig:bodyimage1} Example of body extracted from an email. The text highlighted in \verbblue{blue} is the message conveyed in the email which needs to be extracted. }
+\cprotect\fbox{ 
+\begin{BVerbatim}[commandchars=\\\{\},frame=single]
+\verbblue{Thank you for letting me know about this change.   I will make the revision}=^M
+\verbblue{ on the next copy of the statewide listing that is issued in November.}^M
+^M
+\verbblue{-Vienna}^M
+^M
+\verbblue{S. Vienna Barger, MSW, MSPH, CPH}^M
+\verbblue{Pregnancy Care Management Program Manager}^M
+\verbblue{NC Division of Public Health, Women's Health Branch}^M
+\verbblue{1929 Mail Service Center, Raleigh, NC 27699-1929}^M
+\verbblue{Phone 704-660-1322, Fax 704-660-1678}^M
+\verbblue{Central Office Phone 919-707-5710, Fax 919-870-4827}^M
+vienna.barger@dhhs.nc.gov^M
+http://whb.ncpublichealth.com/^M
+^M
+-----Original Message-----^M
+From: Kim Smith [mailto:kim.l.smith@columbusco.org]^M
+Sent: Monday, October 22, 2012 3:30 PM^M
+To: Doris Robinson; Barger, Vienna^M
+Subject: OB Case Manager^M
+Ladies,^M
+Please change the Lead Pregnancy Manager to Amy Smith (amy.smith@columbusco=^M
+.org).^M
+We are changing this contact due to Mary being the only OBNP we have at thi=^M
+s time and feel this would be best for all involved, esp. potential patient=^M
+s.^M
+Thank you,^M
+Kim Smith^M
+Health Director^M
+Columbus County^M
+________________________________^M
+^M
+Email correspondence to and from this address is subject to the North Carol=^M
+ina Public Records Law and may be disclosed to third parties by an authoriz=^M
+ed State official. Unauthorized disclosure of juvenile, health, legally pri=^M
+vileged, or otherwise confidential information, including confidential info=^M
+rmation relating to an ongoing State procurement effort, is prohibited by l=^M
+aw. If you have received this e-mail in error, please notify the sender imm=^M
+ediately and delete all records of this e-mail.
+\end{BVerbatim}
+}
+	\end{figure}
+\end{center}  
+
+The logic to extract and tokenize the email message has been written in the parse\_message function of text\_parsing module. In this logic, first all the image tags are removed from the body. Then existing hyperlinks or URL's are removed from the body. Then the body is split into lines on the newline character or \^M character. Each line is parsed to check whether it indicates the start of forwaded or replied to message. In Figure \ref{fig:bodyimage1} the delimiter is "-----Original Message-----". Once such a delimiter is encountered the remaining lines of the body are skipped. Thus, the message part of the body is obtained. This is then tokenized using the parse\_text function of the text\_parsing module.
+ The code below shows an example on usage of parse\_message function in the text\_parsing module of email body shown in Figure \ref{fig:bodyimage1}. 
+
+
+\begin{code}
+import text_parsing
+
+# Here text has been initialized before as the text in Figure 13
+
+tokens,raw_text=text_parsing.parse_message(text)
+print tokens
+
+# Output: "letting change revision statewide issued november vienna vienna
+# barger msw msph cph pregnancy care management program manager nc division
+# public health women health branch mail service raleigh nc phone fax central 
+#office phone fax"
+
+print raw_text
+
+# Output: "Thank you for letting me know about this change. I will make the 
+#revision= on the next copy of the statewide listing that is issued in November.
+# -Vienna S. Vienna Barger, MSW, MSPH, CPH Pregnancy Care Management Program
+# Manager NC Division of Public Health, Women's Health Branch 1929 Mail Service
+# Center, Raleigh, NC 27699-1929 Phone 704-660-1322, Fax 704-660-1678 Central 
+#Office Phone 919-707-5710, Fax 919-870-4827"
+\end{code}
+
 \subsection{Code Parameters and Output}
 code output
 \subsection{Scalability and Time taken}
