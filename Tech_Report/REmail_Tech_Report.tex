@@ -447,51 +447,83 @@ list_addresses = parse_addresses(email_to_field)
 # Output will be ["gcronk@alexandercountync.gov"]
 \end{code}
 \subsection{Email Date Extraction}
-Email date extraction
+
+The emails which appear in sender's Sent Mails will also appear in Receiver's Inbox. We don't want to parse the emails two times or multiple times in case the email was sent to multiple people. Hence, a way to remove duplicate emails has to be figured out. We use the meta data extracted from each email and compare it with already parsed emails. If they match, then the current email is declared duplicate. The meta data we compare is "From","To","Subject" and "Date". While implementing this logic, the code contains a snippet for creating and updating this meta data dictionary. We use a dictionary instead of a list to improve run time efficiency. The "From", "To" and "Subject" fields will remain the same in sender's Sent Items and receiver's Inbox. But however the date maybe in different formats due to different mail clients or different timezones.  Figure \ref{fig:date} shows various types of date formats which are usually observed and handled by the code. 
+
+\begin{center}
+	\begin{figure}[ht]
+		\centering
+		\caption{\label{fig:date} Different types of date formats observed in emails}
+\cprotect\fbox{ 
+\begin{BVerbatim}[commandchars=\\\{\},frame=single]
+\verbred{Tue, 9 Oct 2012 16:10:43 +0000}
+
+\verbred{Wed, 15 Aug 2012 07:38:51 -0700 (PDT)}
+
+\verbred{31 Oct 2012 08:00:52 -0400}
+\end{BVerbatim}
+}
+	\end{figure}
+\end{center}  
+
+Hence, all dates need to be converted to a single standard format. If the dates are in any of these formats, they are converted to UTC time format. The timezone information (+xxxx) or (-xxxx) is extracted and added or subtracted respectively from the actual date to obtain UTC time.  Any dates out of this format, are skipped as unable to convert. And this event is logged in the logger file created. Figure \ref{fig:date2} shows the dates in Figure \ref{fig:date}  converted to UTC format.
+
+\begin{center}
+	\begin{figure}[ht]
+		\centering
+		\caption{\label{fig:date2} Dates in Figure \ref{fig:date} converted to UTC time format. }
+\cprotect\fbox{ 
+\begin{BVerbatim}[commandchars=\\\{\},frame=single]
+\verbred{09 Oct 2012 16:10:43}
+
+\verbred{15 Aug 2012 00:38:51}
+
+\verbred{31 Oct 2012 04:00:52}
+\end{BVerbatim}
+}
+	\end{figure}
+\end{center}  
+
+
 \subsection{Email Subject Extraction}
-Email subject extraction
+The email subject can be extracted using the email python package as a string. But however the subject is not tokenized. Processing done to tokenize the subject involves these steps in the same order.
+\begin{itemize}
+\item 
+\item All special characters and digits are removed from the text. Only alphabets (lower case or upper case are allowed to remain in the text.)
+\item The text is converted to lower case.
+\item Stopwords are removed from the list of tokens generated.
+\end{itemize}
+\begin{center}
+	\begin{figure}[ht]
+		\centering
+		\caption{\label{fig:subject} Examples of subjects observed in emails. }
+\cprotect\fbox{ 
+\begin{BVerbatim}[commandchars=\\\{\},frame=single]
+One valid subject
+
+One more valid subject
+
+One garbage subject
+\end{BVerbatim}
+}
+	\end{figure}
+\end{center}  
+
+
 \subsection{Email Body Extraction}
-email body extraction
 \subsection{Code Output}
-code output
 \subsection{Scalability and Time taken}
-scalability and time taken
-% First give an overall view of how the code works
-% Email id extraction
-% Email date extraction
-% Email subject extraction
-% Email Body extraction
-%Generating the output and how to run the code.
-% Scalability and time taken
-% Validation experiments. - Mention how to run check data integrity and the remaining part.
-
-% Email date extraction
-% Date extraction example. How the timezones are handled.
 
 
-% Email subject extraction
- 
-
-% Email body extraction
-
-% How the message part works - example mail and example output. after filtering after various steps. 
-
- 
-% Basically writing to the pickle file.. What all is present in pickle file..
-
-% Then the filtering logic.
-
-
-% How to run the entire code documentation.
-
-% What the code doesn't handle - Limitatiosn - Mapping email ids limitation and Email address construction limitation.
 \subsection{Validation Experiments}
 
-
+% Describe what gets missed in the validation experiments.
 To ensure the accuracy of our automatic email processing techniques, a random sample of 20 emails included in the reduced data set was selected at random and audited manually to ensure that all authors, recipients and the content of the messages were recovered exactly. Results of these random manual audits indicate a 100\% accuracy rate across all counties, meaning that while we cannot rule out the possibility that emails were excluded from our data set due to the use of alternate (personal) email addresses, we are confident that we do not include emails that should not be in our manager-to-manager data set.
 
 \subsection{Limitations}
 The logic embedded for identifying same person with different email addresses, fails to work if no name is obtained with the email address. Since, the mapping exists only from name to email address. People with same name and different email address can be recognized. But, if the name is not obtained in the recipients then the logic fails. 
+\par 
+Email address construction from names has been hardcoded according to counties. To include any other format of email address construction, new code has to be written. A generic code does not exist for email address construction from county.
 
 
 \section{Output Format}
