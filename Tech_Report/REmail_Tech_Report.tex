@@ -486,9 +486,10 @@ Hence, all dates need to be converted to a single standard format. If the dates 
 
 
 \subsection{Email Subject Extraction}
-The email subject can be extracted using the email python package as a string. But however the subject is not tokenized. Processing done to tokenize the subject involves these steps in the same order.
+The email subject can be extracted using the email python package as a string. But however the subject is not tokenized. . A function named parse\_text(message) is available in the test\_parsing module which is responsible for tokenizing the text string. The same function is also used in preprocessing of the email body. Preprocessing involves the following steps in the same order.
 \begin{itemize}
-\item 
+\item Checking if the subject is a valid subject. If not a valid then empty token string is returned. Else further preprocessing is carried out.	
+\item Removal of any html tags if any exist in the subject line. (This processing is mainly for email body.)
 \item All special characters and digits are removed from the text. Only alphabets (lower case or upper case are allowed to remain in the text.)
 \item The text is converted to lower case.
 \item Stopwords are removed from the list of tokens generated.
@@ -496,24 +497,34 @@ The email subject can be extracted using the email python package as a string. B
 \begin{center}
 	\begin{figure}[ht]
 		\centering
-		\caption{\label{fig:subject} Examples of subjects observed in emails. }
+		\caption{\label{fig:subject} Examples of subjects observed in emails. The subject colored in \verbblue{blue} is an example of a valid subject line which needs to be tokenized. The subject colored in \verbred{red} is an example of invalid subject line which needs to be skipped.}
 \cprotect\fbox{ 
 \begin{BVerbatim}[commandchars=\\\{\},frame=single]
-One valid subject
+\verbblue{RE: Please check your Fee and Eligibility Policy}
 
-One more valid subject
-
-One garbage subject
+\verbred{=?UTF-8?Q?[CED_in_NC]_Confronting_the_nation=E2=80=99s_=E2=80=9Cage_bubbl?=}
 \end{BVerbatim}
 }
 	\end{figure}
 \end{center}  
-
-
+Figure \ref{fig:subject} shows example of two subject lines observed in emails. The second subject is clearly not desired in the tokenized results. Such subjects are classified as invalid subject lines and empty token string is returned. The function parse\_text returns two outputs as a tuple. First element of the tuple is token string(tokens obtained after complete preprocessing joined with space. ). Second element of the tuple is raw text ( text containing special characters,digits and stopwords and obtained after removal of html tags and urls.). 
+\par
+The code below gives an example on the usage of this function. 
+\begin{code}
+import text_parsing
+subject="RE: Please check your Fee and Eligibility Policy"
+print text_parsing.parse_text(subject)
+#Output:("check fee eligibility policy","RE: Please check your Fee and Eligibility Policy")
+subject="=?UTF-8?Q?[CED_in_NC]_Confronting_the_nation=E2=80=99s_=E2=80=9Cage_bubbl?="
+print text_parsing.parse_text(subject)
+#Output:("","")
+\end{code}
 \subsection{Email Body Extraction}
-\subsection{Code Output}
+Body extraction
+\subsection{Code Parameters and Output}
+code output
 \subsection{Scalability and Time taken}
-
+Scalability and time taken.
 
 \subsection{Validation Experiments}
 
