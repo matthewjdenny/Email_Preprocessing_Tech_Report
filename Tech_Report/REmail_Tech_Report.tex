@@ -557,8 +557,8 @@ Figure \ref{fig:bodyimage1} shows an  example of the body parsed by the email py
 \verbblue{1929 Mail Service Center, Raleigh, NC 27699-1929}^M
 \verbblue{Phone 704-660-1322, Fax 704-660-1678}^M
 \verbblue{Central Office Phone 919-707-5710, Fax 919-870-4827}^M
-vienna.barger@dhhs.nc.gov^M
-http://whb.ncpublichealth.com/^M
+\verbblue{vienna.barger@dhhs.nc.gov}^M
+\verbblue{http://whb.ncpublichealth.com/}^M
 ^M
 -----Original Message-----^M
 From: Kim Smith [mailto:kim.l.smith@columbusco.org]^M
@@ -633,11 +633,78 @@ The code can generate two types of output. If the spam\_classified value in emai
 \item edge\_matrix.csv: A matrix where each row represents an email. There is a column for sender beyond which all the columns represent the email addresses in the same order as in authors.txt. The elements in column sender are indices for the email address of the sender for that particular email from authors.txt. The others are marked as 1 if they are recipients in the email.
 \end{itemize}
 \subsection{Scalability and Time taken}
+The time taken by the code varies drastically with the number of emails in the corpus. If \textit{n} is the number of emails in the corpus. And \textit{v} and \textit{a} be the number of unique tokens  and number of unique email addresses which can be generated from the corpus. Then the time complexity of the email parsing logic can be given as $\Theta(n + v\log{}v + a\log{}a)$. It must also be noted that the parsing the corpus requires a large number of disk reads (The number of disk reads are proportional to the number of emails in the corpus). Table \ref{tab:time taken} gives the details of two counties for purpose of comparison.
+
+\begin{table}[ht]
+\caption{\label{tab:time taken} Comparison of time taken to process two county email corpora.(Results specific to the machine used.) }
+\centering
+\begin{tabular}{lrrr}
+  \hline
+  \textbf{County} & \textbf{\#Emails} & \textbf{Memory Taken} & \textbf{Time taken} \\
+  \hline
+  Dare County & 68088 & 843.6MB &14m13.118s\\
+  Alexander County & 26096 &  236.5MB &3m32.369s\\
+  \hline
+\end{tabular}
+\end{table}
+  
 
 \subsection{Validation Experiments} 
 
 % Describe what gets missed in the validation experiments.
 To ensure the accuracy of our automatic email processing techniques, a random sample of 20 emails included in the reduced data set was selected at random and audited manually to ensure that all authors, recipients and the content of the messages were recovered exactly. Results of these random manual audits indicate a 100\% accuracy rate across all counties, meaning that while we cannot rule out the possibility that emails were excluded from our data set due to the use of alternate (personal) email addresses, we are confident that we do not include emails that should not be in our manager-to-manager data set.
+\par
+Two types of data gets missed according to validation experiments.  Figure \ref{fig:bodyimage1} shows an example of email message which gets parsed from email. After token processing, all the email addresses and urls are removed from the tokens as seen in the code snippet. However, in the code designed for validation experiments the email address is considered a valid character stream to be tokenized. Hence, the validation code tokenized message consists of few more tokens ("vienna", "barger", "dhhs", "nc", "gov", "http", "whb", "ncpublichealth", "com") as compared to email processing code which are created from the email addresses.
+
+Figure \ref{fig:validation} shows another email with the message part extracted by the email processing code in blue. This part though technically a part of the message is not desirable. Hence, during validation this part of the message is ignored. The email  processing code used to fail to handle such cases. Hence, new logic was added in email body processing, to check for space characters in the given string. If the length of string is greater than 30 with 0  space characters in it , then the string is avoided by the text processing logic. This ensures no random continuous stream of characters in the processed message.
+
+\begin{center}
+	\begin{figure}[ht]
+		\centering
+		\caption{\label{fig:validation} Example of email where the token processing on subject body used to fail}
+\cprotect\fbox{ 
+\begin{BVerbatim}[commandchars=\\\{\},frame=single]
+....
+
+From: Kelly Stultz <KStultz@edennc.us>
+To: NCPlan mailing list <ncplan@listserv.unc.edu>
+Date: Thu, 12 Apr 2012 15:40:51 -0400
+Subject: FW: [ncplan] Anonymous "noname2972" John Smith
+Thread-Topic: [ncplan] Anonymous "noname2972" John Smith
+Thread-Index: Ac0Y3ltu0RAGXVqCQVuyRVk1eIRhxwAAGfHgAAFY9fA=
+...
+
+Content-Type: multipart/alternative;
+        boundary="_000_5C60EF270C41674E8B2AFC115DCAC2880637AE19D3EXCHANGEciede_"
+MIME-Version: 1.0
+
+--_000_5C60EF270C41674E8B2AFC115DCAC2880637AE19D3EXCHANGEciede_
+Content-Type: text/plain; charset="utf-8"
+Content-Transfer-Encoding: base64
+
+\verbblue{DQoNCkZyb206IEtlbGx5IFN0dWx0eg0KU2VudDogVGh1cnNkYXksIEFwcmlsIDEyLCAyMDEyIDI6}
+\verbblue{NTcgUE0NClRvOiAnSm9obiBTbWl0aCcNClN1YmplY3Q6IFJFOiBbbmNwbGFuXSBBbm9ueW1vdXMg}
+\verbblue{Im5vbmFtZTI5NzIiIEpvaG4gU21pdGgNCg0KWW91IGRvbuKAmXQga25vdyBtZSBzbyB5b3UgcmVh}
+\verbblue{bGx5IGRvbuKAmXQga25vdyB3aGF0IEkgdGhpbmsgYWJvdXQgbWFueSB0aGluZ3MuICBIb3dldmVy}
+\verbblue{LCB5b3UgZG8ga25vdyBteSBuYW1lIGFzIGRvIGFsbCBvdGhlcnMgb24gdGhlIGxpc3RzZXJ2LiAg}
+\verbblue{V2h5IGFyZSB5b3Ugbm90IHdpbGxpbmcgdG8gc2hhcmUgeW91cnM/DQoNCktlbGx5DQoNCkZyb206}
+\verbblue{IEpvaG4gU21pdGggW21haWx0bzpub25hbWUyOTcyQHlhaG9vLmNvbV08bWFpbHRvOlttYWlsdG86}
+\verbblue{bm9uYW1lMjk3MkB5YWhvby5jb21dPg0KU2VudDogVGh1cnNkYXksIEFwcmlsIDEyLCAyMDEyIDI6}
+\verbblue{NTkgUE0NClRvOiBOQ1BsYW4gbWFpbGluZyBsaXN0DQpTdWJqZWN0OiBSZTogW25jcGxhbl0gQW5v}
+\verbblue{bnltb3VzICJub25hbWUyOTcyIiBKb2huIFNtaXRoDQoNClllcywgYWx3YXlzIHRyb3Qgb3V0IHRo}
+\verbblue{ZSAiaWYgeW91IGRvbid0IHBheSBvdXIgc2FsYXJ5IHRoZXJlIHdpbGwgYmUgYSB0b3hpYyB3YXN0}
+\verbblue{ZSBzYXQgaW4gb24gc29tZSBjbGFzc2VzIHdoZW4gSSB3ZW50IHRocm91Z2ggY29sbGVnZSBhbmQg}
+\verbblue{dGhhdCB3YXMgZHJpbGxlZCBpbnRvIHlvdXIgaGVhZCBhcyB0aGUgZmlyc3QgcmVzcG9uc2UgdG8g}
+\verbblue{YW55b25lIHdobyBxdWVzdGlvbnMgd2h5IHlvdXIgam9iIGV4aXN0cy4NCg0KVGhlIGNvdW50aWVz}
+\verbblue{IGFscmVhZHkgcmVndWxhdGUgdGhhdCBzb3J0IG9mIHRoaW5nLg0KDQpZb3UgZm9sa3MgYXJlIGp1}
+\verbblue{c3Qgc3RpbGwgbWFkIGFib3V0IHRoZSBpbnZvbHVudGFyeSBhbm5leGF0aW9uIGxhd3MgYmVpbmcg}
+\verbblue{cmVtb3ZlZCBieSB0aGUgTkMgbGVnaXNsYXR1cmUuIFNvbWVvbmUganVzdCBjbGlja2VkIG9uIHRo}
+....
+\end{BVerbatim}
+}
+	\end{figure}
+\end{center}  
+
 
 \subsection{Limitations}
 The logic embedded for identifying same person with different email addresses, fails to work if no name is obtained with the email address. Since, the mapping exists only from name to email address. People with same name and different email address can be recognized. But, if the name is not obtained in the recipients then the logic fails. 
